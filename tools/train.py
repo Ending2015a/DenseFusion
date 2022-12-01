@@ -33,13 +33,13 @@ parser.add_argument('--dataset', type=str, default = 'ycb', help='ycb or linemod
 parser.add_argument('--dataset_root', type=str, default = '', help='dataset root dir (''YCB_Video_Dataset'' or ''Linemod_preprocessed'')')
 parser.add_argument('--batch_size', type=int, default = 8, help='batch size')
 parser.add_argument('--workers', type=int, default = 10, help='number of data loading workers')
-parser.add_argument('--lr', default=0.0001, help='learning rate')
-parser.add_argument('--lr_rate', default=0.3, help='learning rate decay rate')
-parser.add_argument('--w', default=1.5e-3, help='learning rate')
-parser.add_argument('--w_rate', default=0.3, help='learning rate decay rate')
-parser.add_argument('--decay_margin', default=0.016, help='margin to decay lr & w')
-parser.add_argument('--refine_margin', default=0.025, help='margin to start the training of iterative refinement')
-parser.add_argument('--noise_trans', default=0.03, help='range of the random noise of translation added to the training data')
+parser.add_argument('--lr', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--lr_rate', type=float, default=0.3, help='learning rate decay rate')
+parser.add_argument('--w', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--w_rate', type=float, default=0.3, help='learning rate decay rate')
+parser.add_argument('--decay_margin', type=float, default=0.016, help='margin to decay lr & w')
+parser.add_argument('--refine_margin', type=float, default=0.025, help='margin to start the training of iterative refinement')
+parser.add_argument('--noise_trans', type=float, default=0.03, help='range of the random noise of translation added to the training data')
 parser.add_argument('--iteration', type=int, default = 2, help='number of refinement iterations')
 parser.add_argument('--nepoch', type=int, default=500, help='max number of epochs to train')
 parser.add_argument('--resume_posenet', type=str, default = '',  help='resume PoseNet model')
@@ -70,8 +70,8 @@ def main():
     elif opt.dataset == 'synth_junk':
         opt.num_objects = 4
         opt.num_points = 500
-        opt.outf = 'trained_models/synth_junk_v2'
-        opt.log_dir = 'experiments/logs/synth_junk_v2'
+        opt.outf = 'trained_models/synth_junk_v3'
+        opt.log_dir = 'experiments/logs/synth_junk_v3'
         opt.repeat_epoch = 1
     else:
         print('Unknown dataset')
@@ -85,10 +85,12 @@ def main():
     refiner.cuda()
 
     if opt.resume_posenet != '':
-        estimator.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_posenet)))
+        estimator.load_state_dict(torch.load(opt.resume_posenet))
+        #estimator.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_posenet)))
 
     if opt.resume_refinenet != '':
-        refiner.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_refinenet)))
+        refiner.load_state_dict(torch.load(opt.resume_refinenet))
+        #refiner.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_refinenet)))
         opt.refine_start = True
         opt.decay_start = True
         opt.lr *= opt.lr_rate
